@@ -1,8 +1,8 @@
 import unittest as ut
 import datetime as dt
 import pytz as tz
-import pyTE.TemporalExpressions as te
-import pyTE.DateExtensions as de
+import pyte.TemporalExpressions as te
+import pyte.DateExtensions as de
 
 class TestTemporalExpression(ut.TestCase):
 
@@ -105,7 +105,7 @@ class TestTemporalExpression(ut.TestCase):
 
     def testGenerateAllWorkDaysInMarch(self):
         fnt = te.temporalExpressionDifference( \
-                te.rangeInYear(3,1,3,31)
+                te.rangeInYear(3,1,4,1)
                 , te.temporalExpressionSequence([ \
                     te.dayOfWeek(0), te.dayOfWeek(6)]))
         dateList = [d for d in de.dateRangeGenerator( \

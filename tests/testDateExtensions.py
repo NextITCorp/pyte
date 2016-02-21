@@ -1,6 +1,6 @@
 import datetime as dt
 import pytz as tz
-from pyTE.DateExtensions import *
+from pyte.DateExtensions import isUtc,dateRangeGenerator,dateRange
 
 import unittest as ut
 

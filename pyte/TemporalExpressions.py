@@ -13,8 +13,7 @@ from operator import and_, or_
 import datetime as dt
 import pytz as tz
 import calendar as cal
-# import iso8601
-from .DateExtensions import *
+from .DateExtensions import isUtc,dateRangeGenerator
 
 def dayInMonth(dayOfWeek, weekInMonth):
     """
@@ -59,7 +58,7 @@ def dayOfWeek(dayInWeek):
                 is the date a Monday?
         """
         checkUtcDate(candidate)
-        return candidate.isoweekday()%7 == dayInWeek
+        return dayMatches(candidate, dayInWeek)
     return includes
 
 def rangeInYear(startMonth, startDay, endMonth, endDay):
@@ -75,20 +74,16 @@ def rangeInYear(startMonth, startDay, endMonth, endDay):
     :param endMonth: An int from 1 (January) to 12 (December) 
                     representing an end month for the range.
     :param endDay: An int representing the day in the month 
-                    that is the last day of the range.
+                    that is the day after the last day of the range.
     """
     def includes(candidate):
         checkUtcDate(candidate)
         if startMonth == endMonth:
             return candidate.month == startMonth \
-                    and candidate.day >= startDay \
-                    and candidate.day <= endDay 
-        return (candidate.month > startMonth \
-                and candidate.month < endMonth) \
-                or (candidate.month == startMonth
-                and candidate.day >= startDay) \
-                or (candidate.month == endMonth \
-                and candidate.day <= endDay)
+               and startDay <= candidate.day < endDay
+        return (candidate.month > startMonth  and candidate.month < endMonth) \
+            or (candidate.month == startMonth and candidate.day >= startDay) \
+            or (candidate.month == endMonth   and candidate.day < endDay)
     return includes
 
 def temporalExpressionSequence(teList):
@@ -102,8 +97,7 @@ def temporalExpressionSequence(teList):
     """
     def includes(candidate):
         checkUtcDate(candidate)
-        return reduce(or_, \
-                [tefunc(candidate) for tefunc in teList])
+        return any(tefunc(candidate) for tefunc in teList)
     return includes
 
 def temporalExpressionIntersection(teList):
@@ -117,8 +111,7 @@ def temporalExpressionIntersection(teList):
     """
     def includes(candidate):
         checkUtcDate(candidate)
-        return reduce(and_, \
-                [tefunc(candidate) for tefunc in teList])
+        return all(tefunc(candidate) for tefunc in teList)
     return includes
 
 def temporalExpressionDifference(teInclude, teExclude):
@@ -158,8 +151,8 @@ def dayMatches(candidate, dayInWeek):
 
 def weekInMonthMatches(candidate, weekInMonth):
     if weekInMonth >= 0:
-        return int((candidate.day-1)/7) == weekInMonth
-    return int((cal.monthrange(candidate.year, \
-            candidate.month)[1]-candidate.day)/7) \
+        return (candidate.day-1)//7 == weekInMonth
+    return (cal.monthrange(candidate.year, \
+            candidate.month)[1]-candidate.day)//7 \
             == weekInMonth +1
 

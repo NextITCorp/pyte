@@ -13,7 +13,7 @@ def isUtc(theDateTime):
              False if the date has no timezone 
              or the timezone is not utc.
     """
-    return theDateTime.tzinfo == tz.utc
+    return theDateTime.tzname() == 'UTC'
 
 def dateRangeGenerator(startDate, endDate):
     """
@@ -23,7 +23,7 @@ def dateRangeGenerator(startDate, endDate):
     :param endDate: The day after the last day in the range.
     :return: a generator over the specified range.
     """
-    if not isUtc(startDate) and not isUtc(endDate):
+    if not isUtc(startDate) or not isUtc(endDate):
         raise ValueError('dates must be Utc')
 
     length = int((endDate-startDate)/dt.timedelta(days=1))
@@ -37,5 +37,5 @@ def dateRange(startDate, endDate):
     :param endDate: The day after the last day in the range.
     :return: a list of dates in the range.
     """
-    return [d for d in dateRangeGenerator(startDate, endDate)]
+    return list(dateRangeGenerator(startDate, endDate))
 
